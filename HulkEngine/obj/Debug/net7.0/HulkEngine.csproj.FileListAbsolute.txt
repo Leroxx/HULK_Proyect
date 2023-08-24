@@ -1,0 +1,12 @@
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/bin/Debug/net7.0/HulkEngine.deps.json
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/bin/Debug/net7.0/HulkEngine.dll
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/bin/Debug/net7.0/HulkEngine.pdb
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/obj/Debug/net7.0/HulkEngine.csproj.AssemblyReference.cache
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/obj/Debug/net7.0/HulkEngine.GeneratedMSBuildEditorConfig.editorconfig
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/obj/Debug/net7.0/HulkEngine.AssemblyInfoInputs.cache
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/obj/Debug/net7.0/HulkEngine.AssemblyInfo.cs
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/obj/Debug/net7.0/HulkEngine.csproj.CoreCompileInputs.cache
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/obj/Debug/net7.0/HulkEngine.dll
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/obj/Debug/net7.0/refint/HulkEngine.dll
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/obj/Debug/net7.0/HulkEngine.pdb
+/home/leroux/Documentos/Proyectos/Hulk/HulkEngine/obj/Debug/net7.0/ref/HulkEngine.dll
