@@ -1,4 +1,5 @@
 
+using System.ComponentModel;
 using System.Globalization;
 
 namespace HulkEngine
@@ -31,6 +32,16 @@ namespace HulkEngine
         public double Value { get; set; }
     }
 
+    public class String : AST
+    {
+        public String(Token token)
+        {
+            this.Value = token.Value;
+        }
+
+        public string Value { get; set; }
+    }
+
     public class UnaryOP : AST
     {
         public UnaryOP(Token op, AST exp)
@@ -41,6 +52,52 @@ namespace HulkEngine
 
         public Token.TokenType TokenType { get; set; }
         public AST Exp { get; set; }
+    }
+
+    public class MathFunction : AST
+    {
+        public MathFunction(Token function, AST expression)
+        {
+            this.Function = function;
+            this.Expression = expression;
+        }
+
+        public Token Function { get; set; }
+        public AST Expression { get; set; }
+    }
+
+    public class LogFunction : AST
+    {
+        public LogFunction(AST expression_base, AST expression)
+        {
+            this.Expression_Base = expression_base;
+            this.Expression = expression;
+        }
+
+        public AST Expression_Base { get; set; }
+        public AST Expression { get; set; }
+    }
+
+    public class Pow : AST
+    {
+        public Pow(AST expression, AST exp)
+        {
+            this.Expression = expression;
+            this.Exp = exp;
+        }
+
+        public AST Expression { get; set; }
+        public AST Exp { get; set; }
+    }
+
+    public class Constants : AST
+    {
+        public Constants(Token token)
+        {
+            this.Token = token;
+        }
+
+        public Token Token { get; set; }
     }
 
     public class Print : AST

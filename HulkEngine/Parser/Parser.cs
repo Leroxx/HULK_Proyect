@@ -15,7 +15,7 @@ namespace HulkEngine
 
         private void Error(Token.TokenType type)
         {
-            throw new ArgumentException(String.Format("! SYNTAX ERROR : Missing '{0}'", type), "type");
+            throw new ArgumentException("! SYNTAX ERROR : Missing '{0}'", type.ToString());
         }
 
         private void Eat(Token.TokenType type)
@@ -108,6 +108,27 @@ namespace HulkEngine
             return node;
         }
 
+        private AST MathFunction(Token token)
+        {
+            if (token.Value == "sqrt" || token.Value == "sin" || token.Value == "cos" || token.Value == "exp")
+            {
+                Eat(Token.TokenType.LPAREN);
+                MathFunction node = new(token, Expr());
+                Eat(Token.TokenType.RPAREN);
+                return node;
+            }
+            else
+            {
+                Eat(Token.TokenType.LPAREN);
+                AST right = Expr();
+                Eat(Token.TokenType.COMMA);
+                AST left = Expr();
+                Eat(Token.TokenType.RPAREN);
+                LogFunction node = new(right, left);
+                return node;
+            }
+        }
+
         private AST Factor()
         {
             Token token = current_token;
@@ -124,16 +145,34 @@ namespace HulkEngine
                 UnaryOP node = new(token, Factor());
                 return node;
             }
-            else if (token.Type == Token.TokenType.INTEGRER)
+            else if (token.Type == Token.TokenType.NUMBER)
             {
-                Eat(Token.TokenType.INTEGRER);
+                Eat(Token.TokenType.NUMBER);
                 return new Num(token);
+            }
+            else if (token.Type == Token.TokenType.STRING)
+            {
+                String node = new(current_token);
+                Eat(Token.TokenType.STRING);
+                return node;
             }
             else if (token.Type == Token.TokenType.LPAREN)
             {
                 Eat(Token.TokenType.LPAREN);
                 AST node = Expr();
                 Eat(Token.TokenType.RPAREN);
+                return node;
+            }
+            else if (Token.Constant.ContainsKey(token.Value))
+            {
+                Eat(token.Type);
+                Constants node = new(token);
+                return node;
+            }
+            else if (Token.MathFunction.ContainsKey(token.Value))
+            {
+                Eat(token.Type);
+                AST node = MathFunction(token);
                 return node;
             }
             else 
@@ -146,6 +185,13 @@ namespace HulkEngine
         private AST Term()
         {
             AST node = Factor();
+
+            if (current_token.Type == Token.TokenType.POW)
+            {
+                Eat(Token.TokenType.POW);
+                node = new Pow(node, Factor());
+                return node;
+            }
 
             while (current_token.Type == Token.TokenType.MUL || current_token.Type == Token.TokenType.DIV)
             {

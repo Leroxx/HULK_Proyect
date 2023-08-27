@@ -33,7 +33,54 @@ namespace HulkEngine
             throw new Exception("Invalid operator");
         }
 
+        public dynamic Visit_MathFunction(dynamic node)
+        {
+            if (node.Function.Type == Token.TokenType.SQRT)
+            {
+                return Math.Sqrt(Visit(node.Expression));
+            }
+            else if (node.Function.Type == Token.TokenType.SIN)
+            {
+                return Math.Sin(Visit(node.Expression));
+            }
+            else if (node.Function.Type == Token.TokenType.COS)
+            {
+                return Math.Cos(Visit(node.Expression));
+            }
+            else if (node.Function.Type == Token.TokenType.EXP)
+            {
+                return Math.Pow(Math.E, Visit(node.Expression));
+            }
+
+            throw new Exception("Invalid function");
+        }
+
+        public dynamic Visit_LogFunction(dynamic node)
+        {
+            return Math.Log(Visit(node.Expression), Visit(node.Expression_Base));
+        }
+
+        public dynamic Visit_Pow(dynamic node)
+        {
+            return Math.Pow(Visit(node.Expression), Visit(node.Exp));
+        }
+
         public dynamic Visit_Num(dynamic node)
+        {
+            return node.Value;
+        }
+
+        public dynamic Visit_Constants(dynamic node)
+        {
+            if (node.Token.Type == Token.TokenType.PI)
+                return Math.PI;
+            else if (node.Token.Type == Token.TokenType.E)
+                return Math.E;
+
+            throw new Exception("Invalid constant");
+        }
+
+        public dynamic Visit_String(dynamic node)
         {
             return node.Value;
         }

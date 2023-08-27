@@ -1,7 +1,4 @@
 
-using System.Globalization;
-using System.Security.Cryptography;
-
 namespace HulkEngine
 {
     public class Lexer
@@ -17,9 +14,9 @@ namespace HulkEngine
         private string Text { get; set; }
         private int pos = 0;
 
-        private void Error(string text)
+        private void Error(string messege)
         {
-            throw new ArgumentException(String.Format("! LEXICAL ERROR : '{0}' is not valid Token", text), "text");
+            throw new ArgumentException("Error Lexico: {0} no es un Token validos", messege);
         }
 
         private void Advance()
@@ -37,7 +34,7 @@ namespace HulkEngine
                 Advance();
         }
 
-        private string Integrer()
+        private string Number()
         {
             string result = "";
             while (current_char != ';' && char.IsDigit(current_char))
@@ -61,7 +58,21 @@ namespace HulkEngine
             return result;
         }
 
-        public Token _ID()
+        private string String()
+        {
+            string result = "";
+
+            while (current_char != '"')
+            {
+                result += current_char;
+                Advance();
+            }
+            
+            Advance();
+            return result;
+        }
+
+        public Token ID()
         {
             string result = "";
 
@@ -76,6 +87,14 @@ namespace HulkEngine
             if (Token.Reserved_Keywords.ContainsKey(result))
             {
                 token = Token.Reserved_Keywords[result];
+            }
+            else if (Token.MathFunction.ContainsKey(result))
+            {
+                token = Token.MathFunction[result];
+            }
+            else if (Token.Constant.ContainsKey(result))
+            {
+                token = Token.Constant[result];
             }
             else 
             {
@@ -96,10 +115,10 @@ namespace HulkEngine
                 }
 
                 if (char.IsDigit(current_char))
-                    return new Token(Token.TokenType.INTEGRER, Integrer());
+                    return new Token(Token.TokenType.NUMBER, Number());
 
                 if (char.IsLetterOrDigit(current_char))
-                    return _ID();
+                    return ID();
 
                 if (current_char == '+')
                 {
@@ -137,6 +156,12 @@ namespace HulkEngine
                     return new Token(Token.TokenType.RPAREN, ")");
                 }
 
+                if (current_char == '^')
+                {
+                    Advance();
+                    return new Token(Token.TokenType.POW, "^");
+                }
+
                 if (current_char == '=')
                 {
                     Advance();
@@ -147,6 +172,12 @@ namespace HulkEngine
                 {
                     Advance();
                     return new Token(Token.TokenType.COMMA, ",");
+                }
+
+                if (current_char == '"')
+                {
+                    Advance();
+                    return new Token(Token.TokenType.STRING, String());
                 }
 
                 Error(current_char.ToString());
