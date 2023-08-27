@@ -159,7 +159,7 @@ namespace HulkEngine
             else if (token.Type == Token.TokenType.LPAREN)
             {
                 Eat(Token.TokenType.LPAREN);
-                AST node = Expr();
+                AST node = Statement();
                 Eat(Token.TokenType.RPAREN);
                 return node;
             }
@@ -222,6 +222,12 @@ namespace HulkEngine
                     Eat(Token.TokenType.MINUS);
 
                 node = new BinOP(node, token, Term());
+            }
+
+            if (current_token.Type == Token.TokenType.CONCATENATION)
+            {
+                Eat(Token.TokenType.CONCATENATION);
+                node = new Concatenation(node, Term());
             }
 
             return node;

@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 
 namespace HulkEngine
 {
@@ -16,6 +15,7 @@ namespace HulkEngine
             LPAREN,
             RPAREN,
             PRINT,
+            CONCATENATION,
             LET,
             IN,
             ID,

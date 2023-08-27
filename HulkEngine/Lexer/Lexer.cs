@@ -180,6 +180,12 @@ namespace HulkEngine
                     return new Token(Token.TokenType.STRING, String());
                 }
 
+                if (current_char == '@')
+                {
+                    Advance();
+                    return new Token(Token.TokenType.CONCATENATION, "@");
+                }
+
                 Error(current_char.ToString());
             }
 

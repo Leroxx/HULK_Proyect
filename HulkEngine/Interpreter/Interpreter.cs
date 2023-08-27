@@ -3,10 +3,12 @@ namespace HulkEngine
 {
     public class Interpreter : NodeVisitor
     {
-        public Dictionary<string, object> Global_Scope = new Dictionary<string, object>();
+        SymbolTable symbolTable;
+
         public Interpreter(Parser parser)
         {
             this.Parser = parser;
+            symbolTable = new SymbolTable();
         }
 
         private Parser Parser { get; set; }
@@ -104,33 +106,46 @@ namespace HulkEngine
             return result;
         }
 
+        public dynamic Visit_Concatenation(dynamic node)
+        {
+            return Visit(node.Right).ToString() + Visit(node.Left).ToString();
+        }
+
         public dynamic Visit_LetIN(dynamic node)
         {
+            symbolTable.PushTable();
+
             foreach (AST item in node.VariablesDeclarations)
             {
                 Visit(item);
             }
-
-            return Visit(node.InNode);
+            
+            var Value = Visit(node.InNode);
+            symbolTable.PopTable();
+            return Value;
         }
 
         public dynamic Visit_Assign(dynamic node)
         {
             string name = node.Variable.VarName;
-            Global_Scope.Add(name, Visit(node.Expression));
+            var value = Visit(node.Expression);
+
+            if (value is double)
+            {
+                symbolTable.AddSymbol(name, value, SymbolTable.VariableType.Double);
+            }
+            else if (value is string)
+            {
+                symbolTable.AddSymbol(name, value, SymbolTable.VariableType.String);
+            }
+
             return name;
         }
 
         public dynamic Visit_Var(dynamic node)
         {
             string name = node.VarName;
-
-            if (Global_Scope.ContainsKey(name))
-            {
-                return Global_Scope[name];
-            }
-            else
-                throw new Exception("Variable no declarada");
+            return symbolTable.GetSymbol(name).Item1;
         }
 
         public dynamic Interpret()

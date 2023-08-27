@@ -1,6 +1,7 @@
 ﻿using HulkEngine;
 
-/*string? text = Console.ReadLine();
+
+string? text = Console.ReadLine();
 
 if (text is not null)
 {
@@ -9,10 +10,9 @@ if (text is not null)
     Parser parser = new(lexer);
     Interpreter interpreter = new(parser);
     var result = interpreter.Interpret();
-}*/
+}
 
-
-
+/*
 Console.WriteLine("Bienvenidos al intérprete de HULK");
 
 while(true)
@@ -51,3 +51,4 @@ static object ProcessInput(string input)
     Interpreter interpreter = new(parser);
     return interpreter.Interpret();
 }
+*/

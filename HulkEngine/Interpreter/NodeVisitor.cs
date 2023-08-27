@@ -12,7 +12,6 @@ namespace HulkEngine
 
         public void GenericVisit(dynamic node)
         {
-            Console.WriteLine("Entre");
             throw new Exception($"No Visit_{GetType().Name} method");
         }
     }

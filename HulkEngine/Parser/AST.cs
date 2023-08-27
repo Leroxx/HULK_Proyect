@@ -1,5 +1,3 @@
-
-using System.ComponentModel;
 using System.Globalization;
 
 namespace HulkEngine
@@ -98,6 +96,18 @@ namespace HulkEngine
         }
 
         public Token Token { get; set; }
+    }
+
+    public class Concatenation : AST
+    {
+        public Concatenation(AST right, AST left)
+        {
+            this.Right = right;
+            this.Left = left;
+        }
+
+        public AST Right { get; set; }
+        public AST Left {get; set; }
     }
 
     public class Print : AST
