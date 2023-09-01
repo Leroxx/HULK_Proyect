@@ -120,6 +120,32 @@ namespace HulkEngine
         public AST Expression { get; set; }
     }
 
+    public class FunctionDeclaration : AST
+    {
+        public FunctionDeclaration(string name, LinkedList<AST> parameters, AST expression)
+        {
+            this.Name = name;
+            this.Parameters = parameters;
+            this.Expression = expression;
+        }
+
+        public string Name { get; set; }
+        public LinkedList<AST> Parameters { get; set; }
+        public AST Expression { get; set; }
+    }
+
+    public class FunctionCall : AST
+    {
+        public FunctionCall(string name, List<AST> parameters)
+        {
+            this.FunctionName = name;
+            this.Parameters = parameters;
+        }
+
+        public string FunctionName { get; set; }
+        public List<AST> Parameters { get; set; }
+    }
+
     public class LetIN : AST
     {
         public LetIN(LinkedList<AST> variablesDeclarations, AST inNode)

@@ -3,16 +3,13 @@ namespace HulkEngine
 {
     public class Interpreter : NodeVisitor
     {
-        SymbolTable symbolTable;
-
-        public Interpreter(Parser parser)
+        public Interpreter(SymbolTable symbolTable)
         {
-            this.Parser = parser;
-            symbolTable = new SymbolTable();
+            this.SymbolTable = symbolTable;
         }
 
-        private Parser Parser { get; set; }
-        
+        public SymbolTable SymbolTable { get; set; }
+
         public dynamic Visit_BinOP(dynamic node)
         {
             if (node.OP.Type == Token.TokenType.PLUS)
@@ -111,9 +108,35 @@ namespace HulkEngine
             return Visit(node.Right).ToString() + Visit(node.Left).ToString();
         }
 
+        public dynamic Visit_FunctionDeclaration(dynamic node)
+        {
+            List<string> parameters = new List<string>();
+
+            foreach (var item in node.Parameters)
+                parameters.Add(item.VarName);
+
+            SymbolTable.AddFunction(node.Name, parameters, node.Expression);
+            Token.Functions.Add(node.Name);
+            return node;
+        }
+
+        public dynamic Visit_FunctionCall(dynamic node)
+        {            
+            List<object> parameters = new List<object>();
+
+            foreach (var item in node.Parameters)
+                parameters.Add(Visit(item));
+
+            AST result = SymbolTable.CallFunction(node.FunctionName, parameters);
+
+            var Value = Visit(result);
+            SymbolTable.PopTable();
+            return Value;
+        }
+
         public dynamic Visit_LetIN(dynamic node)
         {
-            symbolTable.PushTable();
+            SymbolTable.PushTable();
 
             foreach (AST item in node.VariablesDeclarations)
             {
@@ -121,7 +144,7 @@ namespace HulkEngine
             }
             
             var Value = Visit(node.InNode);
-            symbolTable.PopTable();
+            SymbolTable.PopTable();
             return Value;
         }
 
@@ -132,11 +155,11 @@ namespace HulkEngine
 
             if (value is double)
             {
-                symbolTable.AddSymbol(name, value, SymbolTable.VariableType.Double);
+                SymbolTable.AddSymbol(name, value, SymbolTable.VariableType.Double);
             }
             else if (value is string)
             {
-                symbolTable.AddSymbol(name, value, SymbolTable.VariableType.String);
+                SymbolTable.AddSymbol(name, value, SymbolTable.VariableType.String);
             }
 
             return name;
@@ -145,12 +168,14 @@ namespace HulkEngine
         public dynamic Visit_Var(dynamic node)
         {
             string name = node.VarName;
-            return symbolTable.GetSymbol(name).Item1;
+            return SymbolTable.GetSymbol(name).Item1;
         }
 
-        public dynamic Interpret()
+        public dynamic Interpret(string text)
         {
-            AST tree = Parser.Parse();
+            Lexer lexer = new Lexer(text);
+            Parser parser = new Parser(lexer);
+            AST tree = parser.Parse();
             return Visit(tree);
         }
     }

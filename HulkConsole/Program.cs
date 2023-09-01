@@ -1,18 +1,22 @@
 ﻿using HulkEngine;
-
+/*
 
 string? text = Console.ReadLine();
 
 if (text is not null)
 {
     
-    Lexer lexer = new(text);
-    Parser parser = new(lexer);
-    Interpreter interpreter = new(parser);
+    Lexer lexer = new Lexer(text);
+    Parser parser = new Parser(lexer);
+    Interpreter interpreter = new Interpreter(parser);
     var result = interpreter.Interpret();
 }
 
-/*
+*/
+
+SymbolTable symbolTable = new SymbolTable();
+Interpreter interpreter = new Interpreter(symbolTable);
+
 Console.WriteLine("Bienvenidos al intérprete de HULK");
 
 while(true)
@@ -29,26 +33,22 @@ while(true)
             break;
         }
 
-        try
-        {
+//        try
+//        {
             Console.ForegroundColor = ConsoleColor.Green;
-            var result = ProcessInput(input);
-        }
-        catch (Exception ex)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(ex.Message);
-            continue;
-        }
+            var result = ProcessInput(input, interpreter);
+//        }
+//        catch (Exception ex)
+//        {
+//            Console.ForegroundColor = ConsoleColor.Red;
+//            Console.WriteLine(ex.Message);
+//            continue;
+//        }
     }
     else break;
 }
 
-static object ProcessInput(string input)
+static object ProcessInput(string input, Interpreter interpreter)
 {
-    Lexer lexer = new(input);
-    Parser parser = new(lexer);
-    Interpreter interpreter = new(parser);
-    return interpreter.Interpret();
+    return interpreter.Interpret(input);
 }
-*/

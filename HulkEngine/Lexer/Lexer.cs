@@ -11,7 +11,8 @@ namespace HulkEngine
             current_char = Text[pos];
         }
 
-        private string Text { get; set; }
+        public string Text { get; set; }
+
         private int pos = 0;
 
         private void Error(string messege)
@@ -32,6 +33,15 @@ namespace HulkEngine
         {
             while (current_char != ';' && char.IsWhiteSpace(current_char))
                 Advance();
+        }
+
+        private char Peek()
+        {
+            int peek_pos = pos + 1;
+            if (peek_pos > Text.Length - 1)
+                return ' ';
+            else
+                return Text[peek_pos];
         }
 
         private string Number()
@@ -96,7 +106,11 @@ namespace HulkEngine
             {
                 token = Token.Constant[result];
             }
-            else 
+            else if (Token.Functions.Contains(result))
+            {
+                token = new Token(Token.TokenType.FUNCTION_CALL, result);
+            }
+            else
             {
                 token = new Token(Token.TokenType.ID, result);
             }
@@ -164,8 +178,16 @@ namespace HulkEngine
 
                 if (current_char == '=')
                 {
-                    Advance();
-                    return new Token(Token.TokenType.ASSIGN, "=");
+                    if (Peek() == '>')
+                    {
+                        Advance(); Advance();
+                        return new Token(Token.TokenType.LAMBDA, "=>");
+                    }
+                    else
+                    {
+                        Advance();
+                        return new Token(Token.TokenType.ASSIGN, "=");
+                    }
                 }
 
                 if (current_char == ',')

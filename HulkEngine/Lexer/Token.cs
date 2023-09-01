@@ -16,6 +16,9 @@ namespace HulkEngine
             RPAREN,
             PRINT,
             CONCATENATION,
+            FUNCTION,
+            FUNCTION_CALL,
+            LAMBDA,
             LET,
             IN,
             ID,
@@ -43,6 +46,7 @@ namespace HulkEngine
         public static Dictionary<string, Token> Reserved_Keywords = new Dictionary<string, Token>()
         {
             { "print", new Token(TokenType.PRINT, "print") },
+            { "function", new Token(TokenType.FUNCTION, "function")},
             { "let", new Token(TokenType.LET, "let")},
             { "in", new Token(TokenType.IN, "in")}
         };
@@ -55,6 +59,8 @@ namespace HulkEngine
             { "exp", new Token (TokenType.EXP , "exp")},
             { "log", new Token (TokenType.LOG , "log")}
         };
+
+        public static List<string> Functions = new List<string>();
 
         public static Dictionary<string, Token> Constant = new Dictionary<string, Token>()
         {

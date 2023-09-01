@@ -8,10 +8,11 @@ namespace HulkEngine
         public Parser(Lexer lexer)
         {
             this.Lexer = lexer;
-            current_token = Lexer.GetNexToken();
+            current_token = lexer.GetNexToken();
         }
 
-        private Lexer Lexer { get; set; }
+        public Lexer Lexer { get; set; }
+
 
         private void Error(Token.TokenType type)
         {
@@ -32,8 +33,6 @@ namespace HulkEngine
         private AST Program()
         {
             AST node = Statement();
-            Eat(Token.TokenType.EOL);
-
             return node;
         }
 
@@ -52,6 +51,11 @@ namespace HulkEngine
                 Eat(Token.TokenType.LET);
                 node = LetInStatement();
             }
+            else if (token.Type == Token.TokenType.FUNCTION)
+            {
+                Eat(Token.TokenType.FUNCTION);
+                node = FunctionStatement();
+            }
             else
             {
                 node = Expr();
@@ -69,6 +73,34 @@ namespace HulkEngine
             Eat(Token.TokenType.RPAREN);
 
             return node;
+        }
+
+        private AST FunctionStatement()
+        {
+            Token token = current_token;
+            string name = "";
+            LinkedList<AST> var_list = new LinkedList<AST>();
+            AST node;
+
+            Eat(Token.TokenType.ID);
+            name = token.Value;
+
+            Eat(Token.TokenType.LPAREN);
+
+            while (current_token.Type != Token.TokenType.RPAREN)
+            {
+                if (current_token.Type == Token.TokenType.COMMA)
+                    Eat(Token.TokenType.COMMA);
+
+                node = Var();
+                var_list.AddLast(node);
+            }
+
+            Eat(Token.TokenType.RPAREN);
+            Eat(Token.TokenType.LAMBDA);
+
+            FunctionDeclaration function_node = new(name, var_list, Statement());
+            return function_node;
         }
 
         private AST LetInStatement()
@@ -129,6 +161,28 @@ namespace HulkEngine
             }
         }
 
+        private AST FunctionCall()
+        {
+            Token token = current_token;
+
+            Eat(Token.TokenType.FUNCTION_CALL);
+            Eat(Token.TokenType.LPAREN);
+            List<AST> list = new List<AST>();
+
+            while (current_token.Type != Token.TokenType.RPAREN)
+            {   
+                if (current_token.Type == Token.TokenType.COMMA)
+                    Eat(Token.TokenType.COMMA);
+
+                AST exp = Expr();
+                list.Add(exp);
+            }
+
+            Eat(Token.TokenType.RPAREN);
+            FunctionCall node = new(token.Value, list);
+            return node;
+        }
+
         private AST Factor()
         {
             Token token = current_token;
@@ -161,6 +215,11 @@ namespace HulkEngine
                 Eat(Token.TokenType.LPAREN);
                 AST node = Statement();
                 Eat(Token.TokenType.RPAREN);
+                return node;
+            }
+            else if (token.Type == Token.TokenType.FUNCTION_CALL)
+            {
+                AST node = FunctionCall();
                 return node;
             }
             else if (Token.Constant.ContainsKey(token.Value))
