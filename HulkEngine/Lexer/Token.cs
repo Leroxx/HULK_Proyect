@@ -7,10 +7,13 @@ namespace HulkEngine
         {
             NUMBER,
             STRING,
+            TRUE,
+            FALSE,
             PLUS,
             MINUS,
             MUL,
             DIV,
+            MODULE,
             POW,
             LPAREN,
             RPAREN,
@@ -21,6 +24,17 @@ namespace HulkEngine
             LAMBDA,
             LET,
             IN,
+            IF,
+            ELSE,
+            LESS_THAN,
+            GREATER_THAN,
+            LESS_THAN_OR_EQUAL,
+            GREATER_THAN_OR_EQUAL,
+            EQUAL,
+            NOT_EQUAL,
+            NEGATION,
+            AND,
+            OR,
             ID,
             ASSIGN,
             COMMA,
@@ -48,7 +62,9 @@ namespace HulkEngine
             { "print", new Token(TokenType.PRINT, "print") },
             { "function", new Token(TokenType.FUNCTION, "function")},
             { "let", new Token(TokenType.LET, "let")},
-            { "in", new Token(TokenType.IN, "in")}
+            { "in", new Token(TokenType.IN, "in")},
+            { "if", new Token(TokenType.IF, "if")},
+            { "else", new Token(TokenType.ELSE, "else")}
         };
 
         public static Dictionary<string, Token> MathFunction = new Dictionary<string, Token>()

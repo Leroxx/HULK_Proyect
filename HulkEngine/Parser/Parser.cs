@@ -56,6 +56,11 @@ namespace HulkEngine
                 Eat(Token.TokenType.FUNCTION);
                 node = FunctionStatement();
             }
+            else if (token.Type == Token.TokenType.IF)
+            {
+                Eat(Token.TokenType.IF);
+                node = IfStatement();
+            }
             else
             {
                 node = Expr();
@@ -99,6 +104,7 @@ namespace HulkEngine
             Eat(Token.TokenType.RPAREN);
             Eat(Token.TokenType.LAMBDA);
 
+            Token.Functions.Add(name);
             FunctionDeclaration function_node = new(name, var_list, Statement());
             return function_node;
         }
@@ -121,6 +127,23 @@ namespace HulkEngine
             Eat(Token.TokenType.IN);
             LetIN let_node = new(var_list, Statement());
             return let_node;
+        }
+
+        private AST IfStatement()
+        {
+            AST node_condition;
+            AST if_block;
+
+            Eat(Token.TokenType.LPAREN);
+            node_condition = Statement();
+            Eat(Token.TokenType.RPAREN);
+
+            if_block = Statement();
+            Eat(Token.TokenType.ELSE);
+
+            IfElse node = new(if_block, node_condition, Statement());
+
+            return node;
         }
 
         private AST Assign()
@@ -199,6 +222,12 @@ namespace HulkEngine
                 UnaryOP node = new(token, Factor());
                 return node;
             }
+            else if(token.Type == Token.TokenType.NEGATION)
+            {
+                Eat(Token.TokenType.NEGATION);
+                Negation node = new(token, Factor());
+                return node;
+            }
             else if (token.Type == Token.TokenType.NUMBER)
             {
                 Eat(Token.TokenType.NUMBER);
@@ -206,8 +235,18 @@ namespace HulkEngine
             }
             else if (token.Type == Token.TokenType.STRING)
             {
-                String node = new(current_token);
+                String node = new(token);
                 Eat(Token.TokenType.STRING);
+                return node;
+            }
+            else if (token.Type == Token.TokenType.TRUE || token.Type == Token.TokenType.FALSE)
+            {
+                Bool node = new(token);
+                if (token.Type == Token.TokenType.TRUE)
+                    Eat(Token.TokenType.TRUE);
+                else
+                    Eat(Token.TokenType.FALSE);
+
                 return node;
             }
             else if (token.Type == Token.TokenType.LPAREN)
@@ -252,7 +291,7 @@ namespace HulkEngine
                 return node;
             }
 
-            while (current_token.Type == Token.TokenType.MUL || current_token.Type == Token.TokenType.DIV)
+            while (current_token.Type == Token.TokenType.MUL || current_token.Type == Token.TokenType.DIV || current_token.Type == Token.TokenType.MODULE)
             {
                 Token token = current_token;
 
@@ -260,8 +299,35 @@ namespace HulkEngine
                     Eat(Token.TokenType.MUL);
                 else if (token.Type == Token.TokenType.DIV)
                     Eat(Token.TokenType.DIV);
+                else if (token.Type == Token.TokenType.MODULE)
+                    Eat (Token.TokenType.MODULE);
 
                 node = new BinOP(node, token, Factor());
+            }
+
+            if (current_token.Type == Token.TokenType.LESS_THAN ||
+                current_token.Type == Token.TokenType.GREATER_THAN ||
+                current_token.Type == Token.TokenType.LESS_THAN_OR_EQUAL ||
+                current_token.Type == Token.TokenType.GREATER_THAN_OR_EQUAL ||
+                current_token.Type == Token.TokenType.EQUAL ||
+                current_token.Type == Token.TokenType.NOT_EQUAL)
+            {
+                Token token = current_token;
+
+                if (token.Type == Token.TokenType.LESS_THAN)
+                    Eat(Token.TokenType.LESS_THAN);
+                else if (token.Type == Token.TokenType.GREATER_THAN)
+                    Eat(Token.TokenType.GREATER_THAN);
+                else if (token.Type == Token.TokenType.LESS_THAN_OR_EQUAL)
+                    Eat(Token.TokenType.LESS_THAN_OR_EQUAL);
+                else if (token.Type == Token.TokenType.GREATER_THAN_OR_EQUAL)
+                    Eat(Token.TokenType.GREATER_THAN_OR_EQUAL);
+                else if (token.Type == Token.TokenType.EQUAL)
+                    Eat(Token.TokenType.EQUAL);
+                else if (token.Type == Token.TokenType.NOT_EQUAL)
+                    Eat(Token.TokenType.NOT_EQUAL);
+
+                node = new LogicOP(node, token, Factor());
             }
 
             return node;
@@ -281,6 +347,22 @@ namespace HulkEngine
                     Eat(Token.TokenType.MINUS);
 
                 node = new BinOP(node, token, Term());
+            }
+
+            while (current_token.Type == Token.TokenType.AND || current_token.Type == Token.TokenType.OR)
+            {
+                Token token = current_token;
+
+                if (token.Type == Token.TokenType.AND)
+                {
+                    Eat(Token.TokenType.AND);
+                    node = new ANDNode(node, Term());
+                }
+                else if (token.Type == Token.TokenType.OR)
+                {
+                    Eat(Token.TokenType.OR);
+                    node = new ORNode(node, Term());
+                }
             }
 
             if (current_token.Type == Token.TokenType.CONCATENATION)

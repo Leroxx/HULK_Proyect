@@ -10,7 +10,8 @@ namespace HulkEngine
         public enum VariableType
         {
             Double,
-            String
+            String,
+            Bool
         }
 
         private Stack<Dictionary<string, Tuple<object, VariableType>>> SymbolStack;

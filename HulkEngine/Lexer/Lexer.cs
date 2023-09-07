@@ -110,6 +110,13 @@ namespace HulkEngine
             {
                 token = new Token(Token.TokenType.FUNCTION_CALL, result);
             }
+            else if (result == "true" || result == "false")
+            {
+                if (result == "true")
+                    token = new Token(Token.TokenType.TRUE, "true");
+                else
+                    token = new Token(Token.TokenType.FALSE, "false");
+            }
             else
             {
                 token = new Token(Token.TokenType.ID, result);
@@ -158,6 +165,12 @@ namespace HulkEngine
                     return new Token(Token.TokenType.DIV, "/");
                 }
 
+                if (current_char == '%')
+                {
+                    Advance();
+                    return new Token(Token.TokenType.MODULE, "%");
+                }
+
                 if (current_char == '(')
                 {
                     Advance();
@@ -183,6 +196,11 @@ namespace HulkEngine
                         Advance(); Advance();
                         return new Token(Token.TokenType.LAMBDA, "=>");
                     }
+                    else if (Peek() == '=')
+                    {
+                        Advance(); Advance();
+                        return new Token(Token.TokenType.EQUAL, "==");
+                    }
                     else
                     {
                         Advance();
@@ -202,10 +220,58 @@ namespace HulkEngine
                     return new Token(Token.TokenType.STRING, String());
                 }
 
-                if (current_char == '@')
+                if (current_char == '<')
+                {
+                    if (Peek() == '=')
+                    {
+                        Advance(); Advance();
+                        return new Token(Token.TokenType.LESS_THAN_OR_EQUAL, "<=");
+                    }
+                    else
+                    {
+                        Advance();
+                        return new Token(Token.TokenType.LESS_THAN, "<");
+                    }
+                }
+
+                if (current_char == '>')
+                {
+                    if (Peek() == '=')
+                    {
+                        Advance(); Advance();
+                        return new Token(Token.TokenType.GREATER_THAN_OR_EQUAL, ">=");
+                    }
+                    else
+                    {
+                        Advance();
+                        return new Token(Token.TokenType.GREATER_THAN, ">");
+                    }
+                }
+
+                if (current_char == '!')
+                {
+                    if (Peek() == '=')
+                    {
+                        Advance(); Advance();
+                        return new Token(Token.TokenType.NOT_EQUAL, "!=");
+                    }
+                    else
+                    {
+                        Advance();
+                        return new Token(Token.TokenType.NEGATION, "!");
+                    }
+                }
+
+                if (current_char == '&')
                 {
                     Advance();
-                    return new Token(Token.TokenType.CONCATENATION, "@");
+                    return new Token(Token.TokenType.AND, "&");
+                }
+
+                if (current_char == '|')
+                {
+                    Advance();
+                    return new Token(Token.TokenType.OR, "|");
                 }
 
                 Error(current_char.ToString());

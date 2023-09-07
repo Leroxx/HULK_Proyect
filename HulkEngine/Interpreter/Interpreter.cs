@@ -28,8 +28,66 @@ namespace HulkEngine
             {
                 return Visit(node.Left) / Visit(node.Right);
             }
+            else if (node.OP.Type == Token.TokenType.MODULE)
+            {
+                return Visit(node.Left) % Visit(node.Right);
+            }
 
             throw new Exception("Invalid operator");
+        }
+
+        public dynamic Visit_LogicOP(dynamic node)
+        {
+            if (node.OP.Type == Token.TokenType.LESS_THAN)
+            {
+                return Visit(node.Left) < Visit(node.Right);
+            }
+            else if (node.OP.Type == Token.TokenType.GREATER_THAN)
+            {
+                return Visit(node.Left) > Visit(node.Right);
+            }
+            else if (node.OP.Type == Token.TokenType.LESS_THAN_OR_EQUAL)
+            {
+                return Visit(node.Left) <= Visit(node.Right);
+            }
+            else if (node.OP.Type == Token.TokenType.GREATER_THAN_OR_EQUAL)
+            {
+                return Visit(node.Left) >= Visit(node.Right);
+            }
+            else if (node.OP.Type == Token.TokenType.EQUAL)
+            {
+                return Visit(node.Left) == Visit(node.Right);
+            }
+            else if (node.OP.Type == Token.TokenType.NOT_EQUAL)
+            {
+                return Visit(node.Left) != Visit(node.Right);
+            }
+
+            throw new Exception("Invalid operator");
+        }
+
+        public dynamic Visit_Negation(dynamic node)
+        {
+            if (Visit(node.Expression))
+                return false;
+            else
+                return true;
+        }
+
+        public dynamic Visit_ANDNode(dynamic node)
+        {
+            if (Visit(node.Left) && Visit(node.Right))
+                return true;
+            else
+                return false;
+        }
+
+        public dynamic Visit_ORNode(dynamic node)
+        {
+            if (Visit(node.Left) || Visit(node.Right))
+                return true;
+            else
+                return false;
         }
 
         public dynamic Visit_MathFunction(dynamic node)
@@ -84,6 +142,11 @@ namespace HulkEngine
             return node.Value;
         }
 
+        public dynamic Visit_Bool(dynamic node)
+        {
+            return node.Value;
+        }
+
         public dynamic Visit_UnaryOP(dynamic node)
         {
             Token.TokenType type = node.TokenType;
@@ -116,7 +179,6 @@ namespace HulkEngine
                 parameters.Add(item.VarName);
 
             SymbolTable.AddFunction(node.Name, parameters, node.Expression);
-            Token.Functions.Add(node.Name);
             return node;
         }
 
@@ -148,6 +210,14 @@ namespace HulkEngine
             return Value;
         }
 
+        public dynamic Visit_IfElse(dynamic node)
+        {
+            if (Visit(node.Condition))
+                return Visit(node.IfBlock);
+            else
+                return Visit(node.ElseBlock);
+        }
+
         public dynamic Visit_Assign(dynamic node)
         {
             string name = node.Variable.VarName;
@@ -160,6 +230,10 @@ namespace HulkEngine
             else if (value is string)
             {
                 SymbolTable.AddSymbol(name, value, SymbolTable.VariableType.String);
+            }
+            else if (value is bool)
+            {
+                SymbolTable.AddSymbol(name, value, SymbolTable.VariableType.Bool);
             }
 
             return name;
