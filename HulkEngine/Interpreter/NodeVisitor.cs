@@ -3,6 +3,8 @@ namespace HulkEngine
 {
     public class NodeVisitor
     {
+        // Visit generates the visit to the referenced node by concatenating 
+        // "Visit_" with the type of object with which the Visit method was invoked.
         public object Visit(dynamic node)
         {
             string method_name = "Visit_" + node.GetType().Name;

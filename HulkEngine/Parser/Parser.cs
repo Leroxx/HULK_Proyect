@@ -13,12 +13,30 @@ namespace HulkEngine
 
         public Lexer Lexer { get; set; }
 
-
         private void Error(Token.TokenType type)
         {
-            throw new ArgumentException("! SYNTAX ERROR : Missing '{0}'", type.ToString());
+            switch (type)
+            {
+                case Token.TokenType.LPAREN:
+                    throw new ArgumentException("Syntax Error: Missing '('");
+                case Token.TokenType.RPAREN:
+                    throw new ArgumentException("Syntax Error: Missing ')'");
+                case Token.TokenType.IN:
+                    throw new ArgumentException("Syntax Error: Missing body of the expression 'let-in'");
+                case Token.TokenType.LAMBDA:
+                    throw new ArgumentException("Syntax Error: Missing '=>' on function declaration");
+                case Token.TokenType.ELSE:
+                    throw new ArgumentException("Syntax Error: Missing 'else block' of the expression 'if-else'");
+                case Token.TokenType.ASSIGN:
+                    throw new ArgumentException("Syntax Error: Missing '=' on variable declaration");
+                case Token.TokenType.COMMA:
+                    throw new ArgumentException("Syntax Error: Missing ',' on function declaration");
+                default:
+                    break;
+            }
         }
 
+        // Consumes a token and gets the next one
         private void Eat(Token.TokenType type)
         {   
             if (current_token is not null)
@@ -36,6 +54,7 @@ namespace HulkEngine
             return node;
         }
 
+        // Identifying the type of program.
         private AST Statement()
         {
             AST node;
@@ -69,6 +88,7 @@ namespace HulkEngine
             return node;
         }
 
+        // Getting a print node
         private AST PrintStatement()
         {
             Token token = current_token;
@@ -80,6 +100,7 @@ namespace HulkEngine
             return node;
         }
 
+        // Getting a function node
         private AST FunctionStatement()
         {
             Token token = current_token;
@@ -87,7 +108,11 @@ namespace HulkEngine
             LinkedList<AST> var_list = new LinkedList<AST>();
             AST node;
 
-            Eat(Token.TokenType.ID);
+            if (current_token.Type == Token.TokenType.ID)
+                Eat(Token.TokenType.ID);
+            else
+               throw new ArgumentException("Syntax Error: Missing function name"); 
+
             name = token.Value;
 
             Eat(Token.TokenType.LPAREN);
@@ -109,6 +134,7 @@ namespace HulkEngine
             return function_node;
         }
 
+        // Getting a let-in expression node
         private AST LetInStatement()
         {
             Token token = current_token;
@@ -120,6 +146,9 @@ namespace HulkEngine
                 if (current_token.Type == Token.TokenType.COMMA)
                     Eat(Token.TokenType.COMMA);
 
+                if (current_token.Type == Token.TokenType.EOL)
+                    Eat(Token.TokenType.IN);
+
                 node = Assign();
                 var_list.AddLast(node);
             }
@@ -129,6 +158,7 @@ namespace HulkEngine
             return let_node;
         }
 
+        // Getting a if-else expression node
         private AST IfStatement()
         {
             AST node_condition;
@@ -146,23 +176,31 @@ namespace HulkEngine
             return node;
         }
 
+        // Variable declaration
         private AST Assign()
         {
             AST left = Var();
             Token token = current_token;
             Eat(Token.TokenType.ASSIGN);
-            AST right = Expr();
+            AST right = Statement();
             Assign node = new(left, token, right);
             return node;
         }
 
+        // Variable node
         private AST Var()
         {
             Var node = new(current_token);
-            Eat(Token.TokenType.ID);
+
+            if (current_token.Type == Token.TokenType.ID)
+                Eat(Token.TokenType.ID);
+            else
+               throw new ArgumentException("Syntax Error: Missing variable name");
+
             return node;
         }
 
+        // Math functions node
         private AST MathFunction(Token token)
         {
             if (token.Value == "sqrt" || token.Value == "sin" || token.Value == "cos" || token.Value == "exp")
@@ -184,6 +222,7 @@ namespace HulkEngine
             }
         }
 
+        // Functions node of a function which has already been declared
         private AST FunctionCall()
         {
             Token token = current_token;
@@ -206,6 +245,8 @@ namespace HulkEngine
             return node;
         }
 
+        /* Returns the nodes of the unary operators, negation and the three allowed data types (number, bool, string), 
+          as well as the nodes of the mathematical functions, declared function calls, constants and variables. */
         private AST Factor()
         {
             Token token = current_token;
@@ -280,6 +321,7 @@ namespace HulkEngine
             }
         }
 
+        // Returns the nodes of the highest priority binary operators as well as comparison operators.
         private AST Term()
         {
             AST node = Factor();
@@ -333,6 +375,7 @@ namespace HulkEngine
             return node;
         }
 
+        // Returns the nodes of the lowest priority binary operators as well as Boolean operators.
         public AST Expr()
         {   
             AST node = Term();

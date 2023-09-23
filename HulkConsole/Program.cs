@@ -1,25 +1,12 @@
-﻿using HulkEngine;
-/*
-
-string? text = Console.ReadLine();
-
-if (text is not null)
-{
-    
-    Lexer lexer = new Lexer(text);
-    Parser parser = new Parser(lexer);
-    Interpreter interpreter = new Interpreter(parser);
-    var result = interpreter.Interpret();
-}
-
-*/
+﻿using System.Reflection;
+using HulkEngine;
 
 SymbolTable symbolTable = new SymbolTable();
 Interpreter interpreter = new Interpreter(symbolTable);
 
-Console.WriteLine("Bienvenidos al intérprete de HULK");
+Console.WriteLine("Welcome to HULK's interpreter");
 
-while(true)
+while (true)
 {
     Console.ForegroundColor = ConsoleColor.Blue;
     Console.Write(">> ");
@@ -27,23 +14,43 @@ while(true)
 
     if (input is not null)
     {
-        if (input == "salir")
+        if (input == "exit")
         {
-            Console.WriteLine("Saliendo...");
+            Console.WriteLine("Exiting...");
             break;
         }
 
-//        try
-//        {
+        try
+        {
             Console.ForegroundColor = ConsoleColor.Green;
             var result = ProcessInput(input, interpreter);
-//        }
-//        catch (Exception ex)
-//        {
-//            Console.ForegroundColor = ConsoleColor.Red;
-//            Console.WriteLine(ex.Message);
-//            continue;
-//        }
+        }
+        catch (Exception ex)
+        {
+            if (ex is TargetInvocationException)
+            {
+                Exception? original = ex;
+
+                while (original is TargetInvocationException targetInvocationException)
+                {
+                    original = targetInvocationException.InnerException;
+                }
+
+                if (original is not null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+
+                    Console.WriteLine("Semantic Error: " + original.Message);
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex.Message);
+            }
+            continue;
+        }
+
     }
     else break;
 }

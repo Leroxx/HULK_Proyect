@@ -10,6 +10,12 @@ namespace HulkEngine
 
         public SymbolTable SymbolTable { get; set; }
 
+        public void Error(string mes)
+        {
+            throw new ArgumentException(mes);
+        }
+
+        // Returns the result of the corresponding binary operation
         public dynamic Visit_BinOP(dynamic node)
         {
             if (node.OP.Type == Token.TokenType.PLUS)
@@ -36,6 +42,7 @@ namespace HulkEngine
             throw new Exception("Invalid operator");
         }
 
+        // Returns the result of the corresponding comparators
         public dynamic Visit_LogicOP(dynamic node)
         {
             if (node.OP.Type == Token.TokenType.LESS_THAN)
@@ -66,6 +73,7 @@ namespace HulkEngine
             throw new Exception("Invalid operator");
         }
 
+        // Returns the result of Visit a ! negation node
         public dynamic Visit_Negation(dynamic node)
         {
             if (Visit(node.Expression))
@@ -74,6 +82,7 @@ namespace HulkEngine
                 return true;
         }
 
+        // Returns the evaluation of the expression
         public dynamic Visit_ANDNode(dynamic node)
         {
             if (Visit(node.Left) && Visit(node.Right))
@@ -92,6 +101,9 @@ namespace HulkEngine
 
         public dynamic Visit_MathFunction(dynamic node)
         {
+            if (Visit(node.Expression) is string || Visit(node.Expression) is bool)
+                throw new ArgumentException("Functions accept numbers only");
+
             if (node.Function.Type == Token.TokenType.SQRT)
             {
                 return Math.Sqrt(Visit(node.Expression));
@@ -114,11 +126,19 @@ namespace HulkEngine
 
         public dynamic Visit_LogFunction(dynamic node)
         {
+            if (Visit(node.Expression) is string || Visit(node.Expression_Base) is bool ||
+                Visit(node.Expression) is string || Visit(node.Expression_Base) is bool)
+                throw new ArgumentException("Functions accept numbers only");
+
             return Math.Log(Visit(node.Expression), Visit(node.Expression_Base));
         }
 
         public dynamic Visit_Pow(dynamic node)
         {
+            if (Visit(node.Expression) is string || Visit(node.Exp) is bool ||
+                Visit(node.Expression) is string || Visit(node.Exp) is bool)
+                throw new ArgumentException("Functions accept numbers only");
+
             return Math.Pow(Visit(node.Expression), Visit(node.Exp));
         }
 
@@ -171,6 +191,7 @@ namespace HulkEngine
             return Visit(node.Right).ToString() + Visit(node.Left).ToString();
         }
 
+        // Send the data to save a function on the SymbolTable
         public dynamic Visit_FunctionDeclaration(dynamic node)
         {
             List<string> parameters = new List<string>();
@@ -182,6 +203,7 @@ namespace HulkEngine
             return node;
         }
 
+        // Evaluate a function then have been declare
         public dynamic Visit_FunctionCall(dynamic node)
         {            
             List<object> parameters = new List<object>();
@@ -196,6 +218,7 @@ namespace HulkEngine
             return Value;
         }
 
+        // Declare a function and return the evaluation of the body
         public dynamic Visit_LetIN(dynamic node)
         {
             SymbolTable.PushTable();
@@ -210,6 +233,7 @@ namespace HulkEngine
             return Value;
         }
 
+        // Execute the if or else block en dependecy of the condition evaluation's
         public dynamic Visit_IfElse(dynamic node)
         {
             if (Visit(node.Condition))
@@ -218,6 +242,7 @@ namespace HulkEngine
                 return Visit(node.ElseBlock);
         }
 
+        // Assign the value of a variable
         public dynamic Visit_Assign(dynamic node)
         {
             string name = node.Variable.VarName;
@@ -239,18 +264,28 @@ namespace HulkEngine
             return name;
         }
 
+        // Get the value of a variable ob the simbol table
         public dynamic Visit_Var(dynamic node)
         {
             string name = node.VarName;
             return SymbolTable.GetSymbol(name).Item1;
         }
 
+        // Evaluate the AST 
         public dynamic Interpret(string text)
         {
             Lexer lexer = new Lexer(text);
             Parser parser = new Parser(lexer);
             AST tree = parser.Parse();
-            return Visit(tree);
+
+            if (tree.GetType().Name == "FunctionCall")
+            {
+                var Value = Visit(tree);
+                Console.WriteLine(Value);
+                return Value;
+            }
+            else
+                return Visit(tree);
         }
     }
 }

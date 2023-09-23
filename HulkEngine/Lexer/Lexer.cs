@@ -17,7 +17,7 @@ namespace HulkEngine
 
         private void Error(string messege)
         {
-            throw new ArgumentException("Error Lexico: {0} no es un Token validos", messege);
+            throw new ArgumentException("Lexical Error: '" + messege + "' is not valid token");
         }
 
         private void Advance()
@@ -26,7 +26,7 @@ namespace HulkEngine
             if (current_char != ';' && pos <= Text.Length - 1)
                 current_char = Text[pos];
             else
-                throw new Exception("falta ;");
+                throw new Exception("Lexical Error: Missing end of line ';'");
         }
 
         private void SkipWhitSpaces()
@@ -51,7 +51,7 @@ namespace HulkEngine
             {
                 result += current_char;
                 Advance();
-            }
+            }                
 
             if (current_char == '.')
             {
@@ -64,6 +64,9 @@ namespace HulkEngine
                     Advance();
                 }
             }
+
+            if (current_char != ' ' && current_char != ';')
+                Error(result + current_char);
             
             return result;
         }
