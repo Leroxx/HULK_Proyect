@@ -65,7 +65,7 @@ namespace HulkEngine
                 }
             }
 
-            if (current_char != ' ' && current_char != ';')
+            if (current_char != ' ' && current_char != ';' && current_char != ',' && current_char != ')')
                 Error(result + current_char);
             
             return result;
@@ -221,6 +221,12 @@ namespace HulkEngine
                 {
                     Advance();
                     return new Token(Token.TokenType.STRING, String());
+                }
+
+                if (current_char == '@')
+                {
+                    Advance();
+                    return new Token(Token.TokenType.CONCATENATION, "@");
                 }
 
                 if (current_char == '<')
