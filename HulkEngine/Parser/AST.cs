@@ -1,4 +1,3 @@
-
 using System.Globalization;
 
 namespace HulkEngine
@@ -19,6 +18,56 @@ namespace HulkEngine
         public Token OP { get; set; }
     }
 
+    public class LogicOP : AST
+    {
+        public LogicOP(AST left, Token op, AST right)
+        {
+            this.Left = left;
+            this.OP = op;
+            this.Right = right;
+        }
+
+        public AST Left { get; set; }
+        public AST Right { get; set; }
+        public Token OP { get; set; }
+    }
+
+    public class Negation : AST
+    {
+        public Negation(Token token, AST expression)
+        {
+            this.Token = token;
+            this.Expression = expression;
+        }
+
+        public Token Token { get; set; }
+        public AST Expression { get; set; }
+    }
+
+    public class ORNode : AST
+    {
+        public ORNode(AST left, AST right)
+        {
+            this.Left = left;
+            this.Right = right;
+        }
+
+        public AST Left { get; set; }
+        public AST Right { get; set; }
+    }
+
+    public class ANDNode : AST
+    {
+        public ANDNode(AST left, AST right)
+        {
+            this.Left = left;
+            this.Right = right;
+        }
+
+        public AST Left { get; set; }
+        public AST Right { get; set; }
+    }
+
     public class Num : AST
     {
         public Num(Token token)
@@ -29,6 +78,26 @@ namespace HulkEngine
 
         public Token.TokenType TokenType { get; set; }
         public double Value { get; set; }
+    }
+
+    public class String : AST
+    {
+        public String(Token token)
+        {
+            this.Value = token.Value;
+        }
+
+        public string Value { get; set; }
+    }
+
+    public class Bool : AST
+    {
+        public Bool(Token token)
+        {
+            this.Value = bool.Parse(token.Value);
+        }
+
+        public bool Value { get; set; }
     }
 
     public class UnaryOP : AST
@@ -43,6 +112,64 @@ namespace HulkEngine
         public AST Exp { get; set; }
     }
 
+    public class MathFunction : AST
+    {
+        public MathFunction(Token function, AST expression)
+        {
+            this.Function = function;
+            this.Expression = expression;
+        }
+
+        public Token Function { get; set; }
+        public AST Expression { get; set; }
+    }
+
+    public class LogFunction : AST
+    {
+        public LogFunction(AST expression_base, AST expression)
+        {
+            this.Expression_Base = expression_base;
+            this.Expression = expression;
+        }
+
+        public AST Expression_Base { get; set; }
+        public AST Expression { get; set; }
+    }
+
+    public class Pow : AST
+    {
+        public Pow(AST expression, AST exp)
+        {
+            this.Expression = expression;
+            this.Exp = exp;
+        }
+
+        public AST Expression { get; set; }
+        public AST Exp { get; set; }
+    }
+
+    public class Constants : AST
+    {
+        public Constants(Token token)
+        {
+            this.Token = token;
+        }
+
+        public Token Token { get; set; }
+    }
+
+    public class Concatenation : AST
+    {
+        public Concatenation(AST right, AST left)
+        {
+            this.Right = right;
+            this.Left = left;
+        }
+
+        public AST Right { get; set; }
+        public AST Left {get; set; }
+    }
+
     public class Print : AST
     {
         public Print(AST expression)
@@ -51,6 +178,32 @@ namespace HulkEngine
         }
         
         public AST Expression { get; set; }
+    }
+
+    public class FunctionDeclaration : AST
+    {
+        public FunctionDeclaration(string name, LinkedList<AST> parameters, AST expression)
+        {
+            this.Name = name;
+            this.Parameters = parameters;
+            this.Expression = expression;
+        }
+
+        public string Name { get; set; }
+        public LinkedList<AST> Parameters { get; set; }
+        public AST Expression { get; set; }
+    }
+
+    public class FunctionCall : AST
+    {
+        public FunctionCall(string name, List<AST> parameters)
+        {
+            this.FunctionName = name;
+            this.Parameters = parameters;
+        }
+
+        public string FunctionName { get; set; }
+        public List<AST> Parameters { get; set; }
     }
 
     public class LetIN : AST
@@ -63,6 +216,20 @@ namespace HulkEngine
 
         public AST InNode { get; set; }
         public LinkedList<AST> VariablesDeclarations { get; set; }
+    }
+
+    public class IfElse : AST
+    {
+        public IfElse(AST ifBlock, AST condition, AST elseBlock)
+        {
+            this.IfBlock = ifBlock;
+            this.Condition = condition;
+            this.ElseBlock = elseBlock;
+        }
+
+        public AST IfBlock { get; set; }
+        public AST Condition { get; set; }
+        public AST ElseBlock { get; set; }
     }
 
     public class Assign : AST

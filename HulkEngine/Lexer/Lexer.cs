@@ -1,7 +1,4 @@
 
-using System.Globalization;
-using System.Security.Cryptography;
-
 namespace HulkEngine
 {
     public class Lexer
@@ -14,12 +11,13 @@ namespace HulkEngine
             current_char = Text[pos];
         }
 
-        private string Text { get; set; }
+        public string Text { get; set; }
+
         private int pos = 0;
 
-        private void Error(string text)
+        private void Error(string messege)
         {
-            throw new ArgumentException(String.Format("! LEXICAL ERROR : '{0}' is not valid Token", text), "text");
+            throw new ArgumentException("Lexical Error: '" + messege + "' is not valid token");
         }
 
         private void Advance()
@@ -28,7 +26,7 @@ namespace HulkEngine
             if (current_char != ';' && pos <= Text.Length - 1)
                 current_char = Text[pos];
             else
-                throw new Exception("falta ;");
+                throw new Exception("Lexical Error: Missing end of line ';'");
         }
 
         private void SkipWhitSpaces()
@@ -37,14 +35,23 @@ namespace HulkEngine
                 Advance();
         }
 
-        private string Integrer()
+        private char Peek()
+        {
+            int peek_pos = pos + 1;
+            if (peek_pos > Text.Length - 1)
+                return ' ';
+            else
+                return Text[peek_pos];
+        }
+
+        private string Number()
         {
             string result = "";
             while (current_char != ';' && char.IsDigit(current_char))
             {
                 result += current_char;
                 Advance();
-            }
+            }                
 
             if (current_char == '.')
             {
@@ -57,11 +64,28 @@ namespace HulkEngine
                     Advance();
                 }
             }
+
+            if (current_char != ' ' && current_char != ';')
+                Error(result + current_char);
             
             return result;
         }
 
-        public Token _ID()
+        private string String()
+        {
+            string result = "";
+
+            while (current_char != '"')
+            {
+                result += current_char;
+                Advance();
+            }
+            
+            Advance();
+            return result;
+        }
+
+        public Token ID()
         {
             string result = "";
 
@@ -77,7 +101,26 @@ namespace HulkEngine
             {
                 token = Token.Reserved_Keywords[result];
             }
-            else 
+            else if (Token.MathFunction.ContainsKey(result))
+            {
+                token = Token.MathFunction[result];
+            }
+            else if (Token.Constant.ContainsKey(result))
+            {
+                token = Token.Constant[result];
+            }
+            else if (Token.Functions.Contains(result))
+            {
+                token = new Token(Token.TokenType.FUNCTION_CALL, result);
+            }
+            else if (result == "true" || result == "false")
+            {
+                if (result == "true")
+                    token = new Token(Token.TokenType.TRUE, "true");
+                else
+                    token = new Token(Token.TokenType.FALSE, "false");
+            }
+            else
             {
                 token = new Token(Token.TokenType.ID, result);
             }
@@ -96,10 +139,10 @@ namespace HulkEngine
                 }
 
                 if (char.IsDigit(current_char))
-                    return new Token(Token.TokenType.INTEGRER, Integrer());
+                    return new Token(Token.TokenType.NUMBER, Number());
 
                 if (char.IsLetterOrDigit(current_char))
-                    return _ID();
+                    return ID();
 
                 if (current_char == '+')
                 {
@@ -125,6 +168,12 @@ namespace HulkEngine
                     return new Token(Token.TokenType.DIV, "/");
                 }
 
+                if (current_char == '%')
+                {
+                    Advance();
+                    return new Token(Token.TokenType.MODULE, "%");
+                }
+
                 if (current_char == '(')
                 {
                     Advance();
@@ -137,16 +186,95 @@ namespace HulkEngine
                     return new Token(Token.TokenType.RPAREN, ")");
                 }
 
-                if (current_char == '=')
+                if (current_char == '^')
                 {
                     Advance();
-                    return new Token(Token.TokenType.ASSIGN, "=");
+                    return new Token(Token.TokenType.POW, "^");
+                }
+
+                if (current_char == '=')
+                {
+                    if (Peek() == '>')
+                    {
+                        Advance(); Advance();
+                        return new Token(Token.TokenType.LAMBDA, "=>");
+                    }
+                    else if (Peek() == '=')
+                    {
+                        Advance(); Advance();
+                        return new Token(Token.TokenType.EQUAL, "==");
+                    }
+                    else
+                    {
+                        Advance();
+                        return new Token(Token.TokenType.ASSIGN, "=");
+                    }
                 }
 
                 if (current_char == ',')
                 {
                     Advance();
                     return new Token(Token.TokenType.COMMA, ",");
+                }
+
+                if (current_char == '"')
+                {
+                    Advance();
+                    return new Token(Token.TokenType.STRING, String());
+                }
+
+                if (current_char == '<')
+                {
+                    if (Peek() == '=')
+                    {
+                        Advance(); Advance();
+                        return new Token(Token.TokenType.LESS_THAN_OR_EQUAL, "<=");
+                    }
+                    else
+                    {
+                        Advance();
+                        return new Token(Token.TokenType.LESS_THAN, "<");
+                    }
+                }
+
+                if (current_char == '>')
+                {
+                    if (Peek() == '=')
+                    {
+                        Advance(); Advance();
+                        return new Token(Token.TokenType.GREATER_THAN_OR_EQUAL, ">=");
+                    }
+                    else
+                    {
+                        Advance();
+                        return new Token(Token.TokenType.GREATER_THAN, ">");
+                    }
+                }
+
+                if (current_char == '!')
+                {
+                    if (Peek() == '=')
+                    {
+                        Advance(); Advance();
+                        return new Token(Token.TokenType.NOT_EQUAL, "!=");
+                    }
+                    else
+                    {
+                        Advance();
+                        return new Token(Token.TokenType.NEGATION, "!");
+                    }
+                }
+
+                if (current_char == '&')
+                {
+                    Advance();
+                    return new Token(Token.TokenType.AND, "&");
+                }
+
+                if (current_char == '|')
+                {
+                    Advance();
+                    return new Token(Token.TokenType.OR, "|");
                 }
 
                 Error(current_char.ToString());

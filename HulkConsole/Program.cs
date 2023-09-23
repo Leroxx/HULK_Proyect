@@ -1,15 +1,61 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Reflection;
 using HulkEngine;
-string text = "";
-Console.Write("calc>");
-string? text2 = Console.ReadLine();
 
+SymbolTable symbolTable = new SymbolTable();
+Interpreter interpreter = new Interpreter(symbolTable);
 
-if (text2 != null)
-    text = text2;
+Console.WriteLine("Welcome to HULK's interpreter");
 
-Lexer lexer = new(text);
-Parser parser = new(lexer);
-Interpreter interpreter = new(parser);
-dynamic result = interpreter.Interpret();
-Console.WriteLine("All Good");
+while (true)
+{
+    Console.ForegroundColor = ConsoleColor.Blue;
+    Console.Write(">> ");
+    string? input = Console.ReadLine();
+
+    if (input is not null)
+    {
+        if (input == "exit")
+        {
+            Console.WriteLine("Exiting...");
+            break;
+        }
+
+        try
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            var result = ProcessInput(input, interpreter);
+        }
+        catch (Exception ex)
+        {
+            if (ex is TargetInvocationException)
+            {
+                Exception? original = ex;
+
+                while (original is TargetInvocationException targetInvocationException)
+                {
+                    original = targetInvocationException.InnerException;
+                }
+
+                if (original is not null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+
+                    Console.WriteLine("Semantic Error: " + original.Message);
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex.Message);
+            }
+            continue;
+        }
+
+    }
+    else break;
+}
+
+static object ProcessInput(string input, Interpreter interpreter)
+{
+    return interpreter.Interpret(input);
+}
