@@ -141,10 +141,12 @@ namespace HulkEngine
             LinkedList<AST> var_list = new LinkedList<AST>();
             AST node;
 
-            while (current_token.Type != Token.TokenType.IN)
+            node = Assign();
+            var_list.AddLast(node);
+
+            while (current_token.Type != Token.TokenType.IN && current_token.Type == Token.TokenType.COMMA)
             {
-                if (current_token.Type == Token.TokenType.COMMA)
-                    Eat(Token.TokenType.COMMA);
+                Eat(Token.TokenType.COMMA);
 
                 if (current_token.Type == Token.TokenType.EOL)
                     Eat(Token.TokenType.IN);

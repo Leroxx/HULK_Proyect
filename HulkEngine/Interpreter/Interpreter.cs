@@ -9,7 +9,7 @@ namespace HulkEngine
         }
 
         public SymbolTable SymbolTable { get; set; }
-
+                    
         public void Error(string mes)
         {
             throw new ArgumentException(mes);
@@ -18,6 +18,10 @@ namespace HulkEngine
         // Returns the result of the corresponding binary operation
         public dynamic Visit_BinOP(dynamic node)
         {
+            if (Visit(node.Right) is string || Visit(node.Right) is bool ||
+                Visit(node.Left) is string || Visit(node.Left) is bool)
+                throw new ArgumentException("Operator " + node.OP.Value + " Canot be used between a type diferents of number");
+
             if (node.OP.Type == Token.TokenType.PLUS)
             {
                 return Visit(node.Left) + Visit(node.Right);
