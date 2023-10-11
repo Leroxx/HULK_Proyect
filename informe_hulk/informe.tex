@@ -1,0 +1,100 @@
+%Preámbulo
+\documentclass[a4paper,12pt]{article}
+\usepackage[left=2.5cm, right=2.5cm, top=3cm, bottom=3cm]{geometry}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=black,
+	urlcolor=blue,
+	linktoc=all}
+\bibliographystyle{plain}
+
+%Document
+\begin{document}
+	\title{Segundo Proyecto de Programación HULK}
+	\author{Richard Eugenio Ávila Entenza}
+	\date{Septiembre, 2023}
+	\maketitle
+	
+	\begin{figure}[h]
+		\center
+		\includegraphics[width=3cm]{matcom.jpg}
+		\label{fig:logo}
+	\end{figure}	
+	\begin{center}
+		\Large Facultad de Matematica y Computacion.
+	\end{center}
+	
+	\newpage
+	\begin{abstract}
+		Como objetivo del Segundo Proyecto de Programación de la Facultad de Matemática y Computaciñon de la Universidad de la Habana se implemento un subconjunto del lenguaje de programación HULK, el cual es un lenguaje de programación imperativo, funcional, estática y fuertemente tipado. Casi todas las instrucciones en HULK son expresiones. En particular, se implemento solamente expresiones que pueden escribirse en una línea. Se desarrollo una aplicación de consola con tecnología .Net 7.0 utilizando C\# como lenguaje de programación. Se sugiere continuar con el desarrollo de la misma para ampliar el lenguaje e implementar en totalidad todas sus funcionalidades.
+	\end{abstract}	
+	
+	\newpage
+	\begin{center}
+		\tableofcontents		
+	\end{center}
+	
+	\newpage	
+	\section{Introducción}\label{sec:introduccion}
+	El proyecto se realiza con el objetivo de implenetar un subconjunto del lenguaje de programación \textbf{HULK}, para ello se hace uso de una aplicación de consola para manejar la interacción del usuario con el interprete de HULK y mostrar los resultados así como errores en caso de existir los mismos.
+	
+	La aplicación consta de dos proyectos una aplicacion de consola \textbf{HulkConsole} que implementa la interfaz gráfica del proyecto y \textbf{HulkEngine} que implementa la lógica del intérprete de HULK, este último es el cual se abordará en mayor detalles en el siguiente informe.
+	
+	\textbf{HulkEngine} esta dividido en tres componentes fundamentales \emph{Lexer, Parser e Interprete}.
+	
+	\newpage
+	
+	\section{Desarrollo}\label{sec:desarrollo}
+	
+	La implementación de las funcionalidades de HULK  está dividida en tres conjuntos de bibliotecas de clases:
+	
+	- \textbf{Lexer:} encargado de procesar la instrucción escrita por el usuario y transformala a una cadena de \emph{Tokens}.
+	
+	- \textbf{Parser:} encargado de procesar todos los Tokens enviados por el Lexer y construir un \textbf{Abstract Syntax Tree (AST)}.
+	
+	- \textbf{Intérprete:} recorre y ejecuta el AST para evualuar este y devolver su valor.
+	
+	\subsection{Lexer.}\label{sub:lexer}
+	El \textbf{Lexer} es el encargado del proceso de \emph{Tokenización} que obtiene el código enviado por el usuario, lo cual seria una cadena de texto y en el Lexer este es procesado de manera lineal, caracter a caracter hasta obtener un \textbf{Token} válido para el lenguaje y ser enviado al Parser, en caso de no ser un Token válido en el lenguaje entonces se envia un excepción, resaltando en que parte del la cadena ha ocurrido el error Léxico.
+	
+	Contiene las bibliotecas de clases \textbf{Token} donde estan declarados todos los token válidos del lenguaje y \textbf{Lexer} donde se realiza el proceso de Tokenización.
+	
+	En la biblioteca de clases \textbf{Lexer} se verifica si el caracter corresponde a algún símbolo del lenguaje ya sean operaciones binarias, unarias o operadores de comparación. Si el caracter enviado es una letra entonces se llama el método auxiliar \textbf{ID} para verificar la cadena alfanumérica a que corresponde, ya se función, nombre de variable o una palabra reservada del lenguaje. 
+	
+	Para mayor información acerca de cuales serian los Tokens válidos del lenguaje, dirigirse a la documentación del lenguaje.
+	
+
+	
+	\subsection{Parser.}\label{sub:lexer}
+	Utilizando \textbf{Parsing Recursivo Descendente} se procesan todos los Token hasta llegar al Token de final de línea \textbf{(;)}, al culmino del proceso de parsing se obtiene un \textbf{Abstract Syntax Tree (AST)} el cual contiene toda la información que sera evaluada en el intérprete.
+	
+	El AST debe cumplir una jerarquía la cual indentifica cual sería una instucción válida del lenguaje, a continuación se muestran las reglas gramaticales del lenguaje.
+
+	\vspace{0.5cm}
+	
+	\vspace{0.5cm}
+	Contiene las bibliotecas de clases AST que contiene la declaraciones de los nodos de HULK y Parser donde se realiza la construcción de los mismos quedando asi el AST que constituiría el programa a evaluar por el intérprete.
+	
+	\subsection{Interpreter.}\label{sub:lexer}
+	El \textbf{Interpreter} es el encargado de evaluar el AST obtenido del Parser, una vez se ha creado este se recorre el árbol \emph{Top-Down} hasta obtener el valor de la raíz del árbol, si durante las visita a los nodos ocurre algun error semántico ya sea con tipos de datos, argumentos de funciones o mal uso de operadores se envía un excepción describiendo el error cometido.
+	
+	El intérprete consta de tres bibliotecas de clases:
+	
+	\textbf{NodeVisitor} se encarga de invocar el metodo de visita al node correspondiente, siempre que se reliza la visita de un nodo se llama el método Visit que recibe un nodo de tipo dynamic de NodeVisitor, segun el tipo de nodo que ha recibo el metodo se genera la visita correspondiente a dicho nodo. Por ejemplo si se envía un nodo de tipo \textbf{BinOP} se genera la visita \textbf{Visit\_BinOP}.
+	
+	\textbf{SymbolTable} tabla de símbolos encarga de guarda los valares y las expresiones de las variables y las funciones respectivamente para luego ser utilizadas, tambien se manejan los ámbitos de declaraciones de la variables y los tipos de datos de las mismas. Destarcar de la tabla de símbolos dos aspectos principales acerca de los ámbitos de las variables, cada vez que se visita un nodo \textbf{LetInStatement}, se crea un nuevo ámbito de variables utilizando un \textbf{Stack}, de este modo en caso de existir en el nuevo ámbito una variable de igual nombre a otra que ya ha sido declarada, esta última, no sería la de mayor prioridad al llamarse, tambien al hacer un llamdo a una función se crea un nuevo ámbito temporal con los valores de los argumentos para así ejecutar la expresión de la función y devolver su valor, una vez devuelvo el resultado del llamado de la función este ámbito deja de existir.
+	
+	\textbf{Interpreter} biblioteca donde se implementan las visitas correspondientes a cada nodo y contiene el método \textbf{Interpret} encargado de evaluar el AST. Ya que el árbol queda estructurado de manera jerarquica utilizando las reglas gramaticales aplicadas en el Parser, simplemente se encarga de visitar y devolver los resultados de las mismas.
+	
+	\section{Conclusiones}\label{sec:desarrollo}
+	Finaliza el desarrollo de este proyecto se ha logrado implenetar un subconjunto de las funcionalidades de HULK, habíendose cumplido con el objetivo del Segundo Poyecto de Programación. Cabe destacar que aun quedan detalles por mejorar y optimizar en el proyecto, se espera en futuro realizar estas.
+
+\end{document}

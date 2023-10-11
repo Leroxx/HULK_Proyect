@@ -1,0 +1,141 @@
+\documentclass[12pt]{beamer}
+\usetheme{Warsaw}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\setbeamercovered{transparent}
+
+\usepackage{listings}
+
+% Configuración para resaltar la sintaxis de C#
+\lstset{
+	language=[Sharp]C,
+	captionpos=b,
+	frame=lines,
+	numbers=left,
+	numberstyle=\tiny,
+	tabsize=2,
+	basicstyle=\ttfamily\tiny,
+	keywordstyle=\color{blue},
+	stringstyle=\color{red},
+	commentstyle=\color{green},
+	breaklines=true,
+	showspaces=false,
+	showstringspaces=false,
+	literate=*
+	{0}{{\color{red}0}}1
+	{1}{{\color{red}1}}1
+	{2}{{\color{red}2}}1
+	{3}{{\color{red}3}}1
+	{4}{{\color{red}4}}1
+	{5}{{\color{red}5}}1
+	{6}{{\color{red}6}}1
+	{7}{{\color{red}7}}1
+	{8}{{\color{red}8}}1
+	{9}{{\color{red}9}}1
+}
+
+\author{Richard Eugenio Avila Entenza}
+\title{Presentación HULK}
+\subtitle{}
+\institute{Facultad de Matemática y Computación\\Universidad de la Habana}
+\date{Julio, 2023}
+
+\begin{document}
+	\maketitle
+	
+	\begin{frame}
+		\frametitle{Introducción}
+		HULK\_Proyect es una aplicación de consola desarrollada con tecnología .Net Core 7.0 escrita en el lenguaje de programación  que tiene como objetivo implementar un subconjunto de las funcionalidades de lenguaje de programación HULK, HULK, el cual es un lenguaje de programación imperativo, funcional, estática y fuertemente tipado. En particular, se implemento solamente expresiones que pueden escribirse en una línea.
+	\end{frame}
+	
+	\begin{frame}[fragile]
+		\frametitle{Estructura del Proyecto.}
+		
+		EL proyecto esta dividido en cinco componentes principaless:
+		\begin{enumerate}
+			\item \textbf{HulkConsole:} que implementa la interfaz gráfica del proyecto.
+			\item \textbf{HulkEngine:} que implementa la lógica del intérprete de HULK, HulkEngine esta dividido en tres componentes fundamentales \emph{Lexer, Parser e Interprete}.
+		\end{enumerate}
+	\end{frame}
+	
+	\begin{frame}[fragile]
+		\frametitle{Lexer.}
+		El \textbf{Lexer} es el encargado del proceso de \emph{Tokenización} que obtiene el código enviado por el usuario, lo cual seria una cadena de texto y en el Lexer este es procesado de manera lineal, caracter a caracter hasta obtener un \textbf{Token} válido para el lenguaje y ser enviado al Parser, en caso de no ser un Token válido en el lenguaje entonces se envia un excepción, resaltando en que parte del la cadena ha ocurrido el error Léxico.
+	\end{frame}	
+	
+	\begin{frame}[fragile]
+		\frametitle{Lexer.}
+		Contiene las bibliotecas de clases \textbf{Token} donde estan declarados todos los token válidos del lenguaje y \textbf{Lexer} donde se realiza el proceso de Tokenización.
+		
+		El método principal del Lexer es \textbf{GetNextToken()} que devuelve al Parser el próximo Token a procesar.
+	\end{frame}
+	
+	\begin{frame}[fragile]
+		\frametitle{Parser.}
+		Utilizando \textbf{Parsing Recursivo Descendente} se procesan todos los Token hasta llegar al Token de final de línea \textbf{(;)}, al culmino del proceso de parsing se obtiene un \textbf{Abstract Syntax Tree (AST)} el cual contiene toda la información que sera evaluada en el intérprete..
+	\end{frame}
+	
+	\begin{frame}[fragile]
+		\frametitle{Parser.}
+		\framesubtitle{Reglas gramaticales del lenguaje.}
+	\end{frame}
+	
+	\begin{frame}[fragile]
+		\frametitle{Interpreter.}
+		El \textbf{Interpreter} es el encargado de evaluar el AST obtenido del Parser, una vez se ha creado este se recorre el árbol \emph{Top-Down} hasta obtener el valor de la raíz del árbol, si durante las visita a los nodos ocurre algun error semántico ya sea con tipos de datos, argumentos de funciones o mal uso de operadores se envía un excepción describiendo el error cometido.
+	\end{frame}
+	
+	\begin{frame}[fragile]
+		\frametitle{Interpreter.}
+		\framesubtitle{NodeVisitor}
+		
+		\begin{enumerate}
+			\item \textbf{NodeVisitor} se encarga de invocar el metodo de visita al node correspondiente, siempre que se reliza la visita de un nodo se llama el método Visit que recibe un nodo de tipo dynamic de NodeVisitor, segun el tipo de nodo que ha recibo el metodo se genera la visita correspondiente a dicho nodo. Por ejemplo si se envía un nodo de tipo \textbf{BinOP} se genera la visita \textbf{Visit\_BinOP}.
+		\end{enumerate}
+	\end{frame}
+	
+	\begin{frame}[fragile]
+		\frametitle{Interpreter.}
+		\framesubtitle{NodeVisitor}
+			\begin{lstlisting}
+			public class NodeVisitor
+			{
+				// Visit generates the visit to the referenced node by concatenating 
+				// "Visit_" with the type of object with which the Visit method was invoked.
+				public object Visit(dynamic node)
+				{
+					string method_name = "Visit_" + node.GetType().Name;
+					var visitor = GetType().GetMethod(method_name);
+					return visitor?.Invoke(this, new object[] {node}) ?? GenericVisit(node);
+				}
+			
+				public void GenericVisit(dynamic node)
+				{
+					throw new Exception($"No Visit_{GetType().Name} method");
+				}
+			}
+			\end{lstlisting}
+	\end{frame}
+	
+	\begin{frame}[fragile]
+		\frametitle{Interpreter.}
+		\framesubtitle{SymbolTable}
+		
+		\begin{enumerate}
+			\item \textbf{SymbolTable} tabla de símbolos encarga de guarda los valares y las expresiones de las variables y las funciones respectivamente para luego ser utilizadas, tambien se manejan los ambitos de declaraciones de la variables y los tipos de datos de las mismas.
+		\end{enumerate}
+	\end{frame}
+	
+	\begin{frame}[fragile]
+		\frametitle{Interpreter.}
+		\framesubtitle{Interpreter}
+		
+		\begin{enumerate}
+			\item \textbf{Interpreter} que hereda de \textbf{NodeVisitor} es una biblioteca donde se implementan las visitas correspondientes a cada nodo y contiene el método \textbf{Interpret} encargado de evaluar el \emph{AST}.
+		\end{enumerate}
+	\end{frame}
+	
+\end{document}

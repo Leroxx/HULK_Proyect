@@ -23,7 +23,7 @@ El `Lexer` es el encargado del proceso de Tokenización de obtiene el código en
 Contiene las bibliotecas de clases `Token` donde estan declarados todos los token válidos del lenguaje y `Lexer` donde se realiza el proceso de Tokenización.
 
 ### Parser
-Una vez obtenido el primer `Token` utilizando Parsing Recursivo Descendente se procesando todos los Token hasta llegar al Token de final de línea del `;`, al culmino del procesp de parsing se obtiene un `Abstract Syntax Tree (AST)` el cual será interpretado. Si durante el proceso de parsing se esperaba un Token en lugar de otro, o se omiten palabras reservadas del lenguaje o cualquier otro error sintáctico se termina el proceso de parsing y se envia un excepción descrbiendo el error cometido.
+Una vez obtenido el primer `Token` utilizando Parsing Recursivo Descendente se procesan todos los Token hasta llegar al Token de final de línea del `;`, al culmino del proceso de parsing se obtiene un `Abstract Syntax Tree (AST)` el cual será interpretado. Si durante el proceso de parsing se esperaba un Token en lugar de otro, o se omiten palabras reservadas del lenguaje o cualquier otro error sintáctico se termina el proceso de parsing y se envia un excepción descrbiendo el error cometido.
 
 Contiene las bibliotecas de clases `AST` que contiene la declaracion de las clases de los nodos de HULK y `Parser` donde se realiza la construcción de los mismos quedando asi el AST que constituiría el programa a evaluar por el intérprete.
 
